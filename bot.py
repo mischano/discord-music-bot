@@ -38,32 +38,40 @@ def run():
 
     @client.command()
     async def leave(ctx):
-        """
-        If the bot is not in a voice channel, raise exception   DONE
-        If the bot is by itself, then leave make the bot leave.
-        If leave is called by a member in the same voice chat, then bot leaves.
-        If leave is called by a member in a different voice chat:
-            1. If the bot by itself then bot leaves.
-            2. If the voice chat has other memebrs, then bot doesnt leave.
-        """
-        channel_obj = discord.utils.get(ctx.bot.voice_clients, guild=ctx.guild)
-        if channel_obj is None:
+        bot_channel_obj = discord.utils.get(ctx.bot.voice_clients, guild=ctx.guild)
+        if bot_channel_obj is None:
             await ctx.send("Bot is not connected to a voice channel.")
             return
 
-        channel_id = channel_obj.channel.id
-        current_channel = client.get_channel(channel_id)
-        if current_channel is None:
+        bot_channel_id = bot_channel_obj.channel.id
+        bot_current_channel = client.get_channel(bot_channel_id)
+        if bot_current_channel is None:
             f_info = getframeinfo(currentframe())
             await ctx.send("usage: channel not found. %s : %s" % (f_info.filename, f_info.lineno))
 
-        channel_members = len(current_channel.members)
+        channel_members = len(bot_current_channel.members)
 
         if channel_members == 1:
-            vc = ctx.guild.voice_client
-            await vc.disconnect()
-            await ctx.send("Bye!")
+            await disconnect_bot(ctx)
             return
-        
+
+        caller_channel_obj = ctx.author.voice
+        if caller_channel_obj is None:
+            await ctx.send("Sorry, can't leave. I'm in the voice channel with someone.\n")
+            return
+        else:
+            caller_channel_id = caller_channel_obj.channel.id
+            if caller_channel_id == bot_channel_id:
+                await disconnect_bot(ctx)
+                return
+            else:
+                await ctx.send("Sorry, can't leave. I'm in the different voice "
+                               "channel (not alone!).\n")
+                return
+
+    async def disconnect_bot(ctx):
+        vc = ctx.guild.voice_client
+        await vc.disconnect()
+        await ctx.send("Bye!")
 
     client.run(TOKEN)
