@@ -1,6 +1,7 @@
 import discord
 import os
 from command import Command
+from player import Player
 from discord.ext import commands
 from dotenv import load_dotenv
 
@@ -16,7 +17,10 @@ if __name__ == '__main__':
     @client.event
     async def on_ready():
         print(f'{client.user} is now running')
-        await client.add_cog(Command(client))
+        player = Player(client)
+        await client.add_cog(player)
+        await client.add_cog(Command(client, player))
+
 
 
     client.run(TOKEN)

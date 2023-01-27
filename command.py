@@ -1,6 +1,5 @@
 import discord
 from discord.ext import commands
-from youtube_dl import YoutubeDL
 
 
 async def disconnect_bot(ctx, msg):
@@ -11,26 +10,15 @@ async def disconnect_bot(ctx, msg):
 
 
 class Command(commands.Cog):
-    def __init__(self, client):
+    def __init__(self, client, player):
         # Bot
         self.bot = client
         self.channel_name = None
         self.channel_id = None
         self.channel_member_num = None
 
-    @commands.command()
-    async def play(self, ctx, *args):
-        """
-        1. you are not connected to vc. Error
-        2. bot is not connected to vc.  Connect bot & play
-        3. you and bot (alone) are in different vc. Connect bot & play
-        4. you and bot (not alone) are in different vc. Error
-        5. you and bot are in the same vc. Play
-        """
-        if not await self.join(ctx):
-            print("doesn't play")
-        else:
-            print("plays")
+        # Player
+        self.player = player
 
     @commands.command()
     async def join(self, ctx):
@@ -48,7 +36,7 @@ class Command(commands.Cog):
 
         caller_channel = caller.channel
         try:
-            await caller_channel.connect(timeout=.5, self_mute=False, self_deaf=True)
+            self.player.vc = await caller_channel.connect(timeout=.5, self_mute=False, self_deaf=True)
             return True
         except discord.ClientException:
             # if self.get_channel_info(ctx) is None:
@@ -64,8 +52,8 @@ class Command(commands.Cog):
                     return True
                 else:
                     await ctx.send("Bot is already connected to a voice channel.")
-                # if same channel return true, else error msg and return false
-                # return  # fail
+                    # if same channel return true, else error msg and return false
+                    return False
         except TimeoutError:
             await ctx.send("Bot connection timed out.")
 
@@ -92,6 +80,42 @@ class Command(commands.Cog):
                 await ctx.send("Sorry, can't leave. I'm in the different voice "
                                "channel (not alone!).\n")
                 return
+
+    @commands.command()
+    async def play(self, ctx, *args):
+        """
+        1. you are not connected to vc. Error
+        2. bot is not connected to vc.  Connect bot & play
+        3. you and bot (alone) are in different vc. Connect bot & play
+        4. you and bot (not alone) are in different vc. Error
+        5. you and bot are in the same vc. Play
+        """
+        if not await self.join(ctx):
+            print("Could not join the vc!")
+            return
+
+        query = " ".join(args)
+        if self.player.search(query) is False:
+            await ctx.send("Could not find the song")
+            return
+
+        await self.player.player(ctx)
+
+    @commands.command()
+    async def skip(self, ctx):
+        pass
+
+    @commands.command()
+    async def shuffle(self, ctx):
+        pass
+
+    @commands.command()
+    async def pause(self, ctx):
+        pass
+
+    @commands.command()
+    async def loop(self, ctx):
+        pass
 
     def get_channel_info(self, ctx):
         bot_channel_obj = discord.utils.get(ctx.bot.voice_clients, guild=ctx.guild)
