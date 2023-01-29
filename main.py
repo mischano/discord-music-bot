@@ -22,5 +22,4 @@ if __name__ == '__main__':
         await client.add_cog(Command(client, player))
 
 
-
     client.run(TOKEN)
