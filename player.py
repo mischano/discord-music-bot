@@ -59,7 +59,7 @@ class Player(commands.Cog):
         return
 
     def pause_music(self):
-        if self.is_paused is True:
+        if self.is_paused is True or self.is_playing is False:
             return False
 
         self.vc.pause()
@@ -68,9 +68,11 @@ class Player(commands.Cog):
         return True
 
     def resume_music(self):
-        if self.is_paused is False:
+        if self.is_paused is False or self.is_playing is True:
             return False
 
         self.vc.resume()
         self.is_paused = False
         self.is_playing = True
+        return True
+        
