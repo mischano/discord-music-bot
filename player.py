@@ -75,4 +75,12 @@ class Player(commands.Cog):
         self.is_paused = False
         self.is_playing = True
         return True
-        
+
+    def clear_music_queue(self):
+        self.vc.stop()
+        self.is_playing = False
+        self.is_paused = False
+        self.current_song = None
+        self.last_added = None
+        dequeue.clear_all()
+

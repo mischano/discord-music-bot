@@ -3,23 +3,11 @@ import asyncio
 from discord.ext import commands
 
 
-async def disconnect_bot(ctx, msg):
-    vc = ctx.guild.voice_client
-    await vc.disconnect()
-    # self.cleanup()
-    if len(msg) != 0:
-        await ctx.send(msg)
-
-
 class Command(commands.Cog):
     def __init__(self, client, player):
         # Bot
-<<<<<<< Updated upstream
-        self.bot = client
-=======
         self.client = client
         self.bot = None
->>>>>>> Stashed changes
         self.bot_channel_name = None
         self.bot_channel_id = None
         self.bot_channel_member_num = None
@@ -31,32 +19,6 @@ class Command(commands.Cog):
         self.caller_channel_name = None
         self.caller_channel_id = None
 
-    def cleanup(self):
-        self.bot_channel_name = None
-        self.bot_channel_id = None
-        self.bot_channel_member_num = None
-
-        # Caller
-        self.caller_channel_name = None
-        self.caller_channel_id = None
-
-        # Player
-        self.player.vc = None
-        self.player.is_playing = False
-        self.player.paused = False
-        self.player.current_song = None
-        self.player.last_added = None
-
-    async def get_caller_channel(self, ctx, msg):
-        caller = ctx.author.voice
-        if caller is None:
-            await ctx.send(msg)
-            return False
-
-        self.caller_channel_name = caller.channel
-        self.caller_channel_id = caller.channel.id
-        return True
-
     @commands.command()
     async def play(self, ctx, *args):
         if not await self.join(ctx):
@@ -64,67 +26,19 @@ class Command(commands.Cog):
 
         query = " ".join(args)
         if self.player.search(query) is False:
-            await ctx.send("Could not find the song")
+            await ctx.send("Fail: song was not found.")
             return
 
         await self.player.player(ctx)
 
-<<<<<<< Updated upstream
     @commands.command()
-    async def join(self, ctx):
-        if await self.get_caller_channel(ctx, "You are not connected to voice chat") is False:
-            return False
-
-        try:
-            self.player.vc = await self.caller_channel_name.connect(timeout=5, reconnect=True, self_mute=False,
-                                                                    self_deaf=True)
-            return True
-        except discord.ClientException:  # You already connected to a voice channel
-            if self.get_channel_info(ctx) is False:
-                await ctx.send("Failed in *get_channel_info*.")
-                return False
-            if self.bot_channel_member_num == 1:
-                await disconnect_bot(ctx, "")
-                self.player.vc = await self.caller_channel_name.connect(timeout=5, reconnect=True, self_mute=False,
-                                                                        self_deaf=True)
-                return True
-            else:
-                if self.caller_channel_name == self.bot_channel_name:
-=======
-    # @commands.command()
-    # async def isconnected(self, ctx):
-    #     voice = discord.utils.get(ctx.bot.voice_clients, guild=ctx.guild)
-    #     print("is_connected(): ", voice.is_connected())
-
-    #     _id = voice.channel.id
-    #     print("bot is connected to channel: " + str(ctx.bot.get_channel(_id)))
-
-    #     voice2 = discord.utils.get(self.bot.voice_clients, guild=ctx.guild)
-    #     print("is_connected(): ",  voice2.is_connected())
-
-    #     _id2 = voice2.channel.id
-    #     print("bot is connected to channel: ", str(ctx.bot.get_channel(_id2)))
-
-        # voice = discord.utils.get(self.bot.voice_clients, guild=ctx.guild)
-        # print(voice.is_connected())
-        # _id = voice.channel.id
-        # print(voice.get_channel(_id))
-        # bot_channel_obj = discord.utils.get(ctx.bot.voice_clients, guild=ctx.guild)
-        # if bot_channel_obj is None:
-        #     return False
-        #
-        # self.bot_channel_id = bot_channel_obj.channel.id
-        # self.bot_channel_name = self.bot.get_channel(self.bot_channel_id)
-        # self.bot_channel_member_num = len(self.bot_channel_name.members)
-        # print(id)
-        # print(voice.get_channel(_id).memebers)
-
-        # self.bot_channel_name = self.bot.get_channel(self.bot_channel_id)
-        # self.bot_channel_member_num = len(self.bot_channel_name.members)
+    async def stop(self, ctx):
+        self.player.vc.stop()
+        return
 
     @commands.command()
     async def join(self, ctx):
-        if await self.get_caller_channel(ctx, "You are not connected to voice channel.") is False:
+        if await self.get_caller_channel(ctx, "You are not connected to a voice channel.") is False:
             return False
         try:
             self.player.vc = await self.caller_channel_name.connect(timeout=.5, reconnect=False, self_mute=False,
@@ -139,13 +53,13 @@ class Command(commands.Cog):
                 await ctx.send("Failed in *get_channel_info*. Please report the issue to **sheriff**. Thank you!")
                 return False
             if self.bot_channel_member_num == 1:
+                self.player.clear_music_queue()
                 await self.bot.move_to(self.caller_channel_name)
                 await ctx.send("Bot has connected to " + str(self.caller_channel_name))
                 return True
             else:
                 if self.caller_channel_name == self.bot_channel_name:
-                    print("Bot is already in the voice channel.")
->>>>>>> Stashed changes
+                    await ctx.send("Bot is in the voice channel with you.")
                     return True
                 else:
                     await ctx.send("Bot is already connected to a voice channel.")
@@ -155,23 +69,22 @@ class Command(commands.Cog):
 
     @commands.command()
     async def leave(self, ctx):
-        if self.get_channel_info(ctx) is False:
-            await ctx.send("Bot is not connected to a voice channel...")
+        if self.get_bot_channel_info(ctx) is False:
+            await ctx.send("Bot is not connected to a voice channel.")
             return
 
         if self.bot_channel_member_num == 1:
             await disconnect_bot(ctx, "Bye!")
             return
 
-        if await self.get_caller_channel(ctx, "Sorry, can't leave. I'm in the voice channel with other user(s).\n") is False:
+        if await self.get_caller_channel(ctx, "Bot is in the voice channel with other user(s).") is False:
             return
         else:
             if self.caller_channel_id == self.bot_channel_id:
                 await disconnect_bot(ctx, "Bye!")
                 return
             else:
-                await ctx.send("Sorry, can't leave. I'm in the different voice "
-                               "channel (not alone!).\n")
+                await ctx.send("Bot is in the voice channel with other user(s).")
                 return
 
     @commands.command()
@@ -230,3 +143,20 @@ class Command(commands.Cog):
         self.bot_channel_name = self.client.get_channel(self.bot_channel_id)
         self.bot_channel_member_num = len(self.bot_channel_name.members)
         return True
+
+    async def get_caller_channel(self, ctx, msg):
+        caller = ctx.author.voice
+        if caller is None:
+            await ctx.send(msg)
+            return False
+
+        self.caller_channel_name = caller.channel
+        self.caller_channel_id = caller.channel.id
+        return True
+
+
+async def disconnect_bot(ctx, msg):
+    vc = ctx.guild.voice_client
+    await vc.disconnect()
+    if len(msg) != 0:
+        await ctx.send(msg)
