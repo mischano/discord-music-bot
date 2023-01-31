@@ -14,7 +14,7 @@ async def disconnect_bot(ctx, msg):
 class Command(commands.Cog):
     def __init__(self, client, player):
         # Bot
-        self.bot = client
+        self.client = client
         self.bot_channel_name = None
         self.bot_channel_id = None
         self.bot_channel_member_num = None
@@ -65,31 +65,74 @@ class Command(commands.Cog):
         await self.player.player(ctx)
 
     @commands.command()
-    async def join(self, ctx):
-        if await self.get_caller_channel(ctx, "You are not connected to voice chat") is False:
-            return False
+    async def isconnected(self, ctx):
+        voice = discord.utils.get(ctx.bot.voice_clients, guild=ctx.guild)
+        print("is_connected(): ", voice.is_connected())
 
-        try:
-            self.player.vc = await self.caller_channel_name.connect(timeout=5, reconnect=True, self_mute=False,
-                                                                    self_deaf=True)
-            return True
-        except discord.ClientException:  # You already connected to a voice channel
-            if self.get_channel_info(ctx) is False:
-                await ctx.send("Failed in *get_channel_info*.")
-                return False
-            if self.bot_channel_member_num == 1:
-                await disconnect_bot(ctx, "")
-                self.player.vc = await self.caller_channel_name.connect(timeout=5, reconnect=True, self_mute=False,
-                                                                        self_deaf=True)
-                return True
-            else:
-                if self.caller_channel_name == self.bot_channel_name:
-                    return True
-                else:
-                    await ctx.send("Bot is already connected to a voice channel.")
-                    return False
-        except asyncio.TimeoutError:
-            await ctx.send("Bot could not connect to the voice channel in time.")
+        _id = voice.channel.id
+        print("bot is connected to channel: " + str(ctx.bot.get_channel(_id)))
+
+        voice2 = discord.utils.get(self.client.voice_clients, guild=ctx.guild)
+        print("is_connected(): ",  voice2.is_connected())
+
+        _id2 = voice2.channel.id
+        print("bot is connected to channel: ", str(ctx.bot.get_channel(_id2)))
+
+        # voice = discord.utils.get(self.bot.voice_clients, guild=ctx.guild)
+        # print(voice.is_connected())
+        # _id = voice.channel.id
+        # print(voice.get_channel(_id))
+        # bot_channel_obj = discord.utils.get(ctx.bot.voice_clients, guild=ctx.guild)
+        # if bot_channel_obj is None:
+        #     return False
+        #
+        # self.bot_channel_id = bot_channel_obj.channel.id
+        # self.bot_channel_name = self.bot.get_channel(self.bot_channel_id)
+        # self.bot_channel_member_num = len(self.bot_channel_name.members)
+        # print(id)
+        # print(voice.get_channel(_id).memebers)
+
+        # self.bot_channel_name = self.bot.get_channel(self.bot_channel_id)
+        # self.bot_channel_member_num = len(self.bot_channel_name.members)
+
+    @commands.command()
+    async def join(self, ctx):
+        caller = ctx.message.author.voice
+        if caller is None:
+            await ctx.send("You are not connected to a voice channel")
+            return
+        await caller.channel.connect(timeout=5, reconnect=False, self_mute=False, self_deaf=True)
+        print("Never executes")
+        # if await self.get_caller_channel(ctx, "You are not connected to voice channel.") is False:
+        #     return False
+        # try:
+        #     # VoiceChannel.connect never returns! Bug from API's side.
+        #     self.player.vc = await self.caller_channel_name.connect(timeout=.5, reconnect=False, self_mute=False,
+        #                                                             self_deaf=True)
+        #     # return True
+        # except discord.ClientException:  # You already connected to a voice channel
+        #     if self.get_channel_info(ctx) is False:
+        #         await ctx.send("Failed in *get_channel_info*.")
+        #         return False
+        #     if self.bot_channel_member_num == 1:
+        #         print("single channel member")
+        #         voice_client = ctx.message.guild.voice_client
+        #         print(voice_client.is_connected())
+        #         await voice_client.disconnect()
+        #         # await disconnect_bot(ctx, "")  # try using move_to
+        #         # self.player.vc = await self.caller_channel_name.connect(timeout=.5, reconnect=False, self_mute=False,
+        #                                                                 # self_deaf=True)
+        #         return True
+        #     else:
+        #         if self.caller_channel_name == self.bot_channel_name:
+        #             print("already in the same channel")
+        #             return True
+        #         else:
+        #             await ctx.send("Bot is already connected to a voice channel.")
+        #             return False
+        # except asyncio.TimeoutError:
+        #     print("HELL")
+        #     await ctx.send("Bot could not connect to the voice channel in time.")
 
     @commands.command()
     async def leave(self, ctx):

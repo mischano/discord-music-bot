@@ -1,0 +1,37 @@
+Join():
+    1. Caller is not connected to vc, signal message.
+    2. Caller is connected to vc:
+        * Bot is not connected to vc, connect.
+        * Bot is connected to vc (different channel, by itself), disconnect bot, connect to current channel.
+        * Bot is connected to vc, (different channel, not by itself), signal message.
+        * Bot is connected to vc (same channel as caller), signal message.
+
+
+Leave():
+    1. Caller is not connected to vc:
+        * Bot is not connected to vc, signal message.
+        * Bot is connected to vc (by itself), disconnect bot.
+        * Bot is connected to vc (not by itself), signal message.
+    2. Caller is connected to vc:
+        * Bot is not connected to vc, signal message.
+        * Bot is connected to vc (by itself), disconnect bot.
+        * Bot is connected to vc (same channel as caller), disconnect bot.
+        * Bot is connected to vc (not by itself, different channel from caller), signal message.
+
+Play():
+    1. Caller is not connected to vc, signal message.
+    2. Caller is connected to vc:
+        * Bot is not connected to vc, connected bot & play.
+        * Bot is connected to vc (different channel, by itself), disconnect bot, connect to current channel, & play.
+        * Bot is connected to vc (different channel from caller, not by itself), signale message.
+
+Pause():
+    1. Caller is not connected to vc:
+        * Bot is not connected to vc, signal message.
+        * Bot is connected to vc, signal message.
+    2. Caller is connected to vc:
+        * Bot is not connected to vc, signal message.
+        * Bot is connected to vc (different channel), signal message.
+        * Bot is connected to vc (same channel):
+            - Bot is playing music, pause the music.
+            - Bot is not playing music, signal message.

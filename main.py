@@ -1,3 +1,5 @@
+import sys
+
 import discord
 import os
 from command import Command
@@ -16,7 +18,10 @@ if __name__ == '__main__':
 
     @client.event
     async def on_ready():
+        # print(discord.version_info)
+        # print(discord.__version__)
         print(f'{client.user} is now running')
+
         player = Player(client)
         await client.add_cog(player)
         await client.add_cog(Command(client, player))
