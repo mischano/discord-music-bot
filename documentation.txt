@@ -24,7 +24,7 @@ Play():
         * Bot is not connected to vc, connected bot & play.
         * Bot is connected to vc (different channel, by itself), disconnect bot, connect to current channel, & play.
         * Bot is connected to vc (different channel from caller, not by itself), signale message.
-
+ 
 Pause():
     1. Caller is not connected to vc:
         * Bot is not connected to vc, signal message.
@@ -52,8 +52,19 @@ Skip():
         * Bot is connected to vc:
             - (different channel), signal message.
             - (same channel):
+                + List is empty:
+                    = Nothing is playing, signal message.
+                    = Nothing is playing (paused), skip song.
+                + List is not empty:
+                    = 
+                
                 + Song list is empty, signal message.
-                + Song list is not empty, skip song.
+                + Song list is not empty:
+                    = One song in the list:
+                        ^ Skip the song, pause. 
+                    = Multiple songs in the list: 
+                        ^ Current song is paused, skip & unpause.
+                        ^ Current song is not paused, skip. 
 
 List():
     1. Bot is not connected to vc, signal message.

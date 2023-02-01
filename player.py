@@ -44,18 +44,24 @@ class Player(commands.Cog):
         else:
             self.play_music(ctx)
             return
-
+ 
     def play_music(self, ctx):
         if dequeue.size() > 0:
             self.is_playing = True
+            self.is_paused = False
             self.current_song = dequeue.pop_left()
             url = self.current_song['source']
             title = '*' + self.current_song['title'] + '*'
-            self.vc.play(discord.FFmpegPCMAudio(url, **self.FFMPEG_OPTIONS), after=lambda e: self.play_music(ctx))
+            # return 1 @ success, 0 @ fail. 
+            ret = self.vc.play(discord.FFmpegPCMAudio(url, **self.FFMPEG_OPTIONS), after=lambda e: self.play_music(ctx))
+            if ret == 1:
+                self.is_playing = True
+            else:
+                self.is_playing = False
             asyncio.run_coroutine_threadsafe(ctx.send("**Now playing: ** " + title), self.bot.loop)
-            return
-
-        self.is_playing = False
+        # else:
+        #     self.is_playing = False
+        print(self.is_playing)
         return
 
     def pause_music(self):
@@ -75,6 +81,22 @@ class Player(commands.Cog):
         self.is_paused = False
         self.is_playing = True
         return True
+
+    def skip_music(self, ctx):
+        number_of_songs = dequeue.size()
+        # print(self.is_playing)
+        if number_of_songs <= 0:
+            if self.is_playing is False and self.is_paused is False:
+                return False
+            else:
+                self.is_paused = False
+                self.is_playing = False
+                self.vc.stop()
+                return True
+        else:
+            self.vc.stop()
+            self.play_music(ctx)
+            return True    
 
     def clear_music_queue(self):
         self.vc.stop()
