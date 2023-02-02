@@ -10,7 +10,7 @@ if __name__ == '__main__':
     load_dotenv()
 
     # TOKEN = os.getenv("TOKEN")
-    TOKEN = "MTA2NjYwMjAwODg4NDMwMTg1NA.G7pms3.CBmh1kJTdzA9Dleo-yyv8GWSbaviQk4EtZdfPw"
+    TOKEN = "MTA2NjYwMjAwODg4NDMwMTg1NA.GSIDds.Bm_smJowUTYtnQYTCP-v-vFJeceU30SwXmuERo"
     intents = discord.Intents.default()
     intents.message_content = True
     client = commands.Bot(command_prefix='!', intents=intents)

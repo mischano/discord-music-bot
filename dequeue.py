@@ -24,6 +24,10 @@ def size():
     return len(queue)
 
 
+def is_empty():
+    return True if len(queue) == 0 else False
+
+
 def clear_all():
     queue.clear()
 

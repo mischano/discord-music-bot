@@ -31,25 +31,15 @@ class Command(commands.Cog):
             await ctx.send("Fail: song was not found.")
             return
 
-        # time.sleep(4)
-        await self.player.player(ctx)
-
-    @commands.command()
-    async def stop(self, ctx):
-        self.player.vc.stop()
-        return
+        self.player.player(ctx)
 
     @commands.command()
     async def join(self, ctx):
         if await self.get_caller_channel(ctx, "You are not connected to a voice channel.") is False:
             return False
         try:
-            self.player.vc = await self.caller_channel_name.connect(timeout=.5, reconnect=True, self_mute=False,
-                                                                    self_deaf=True)
-            if isinstance(self.player.vc, discord.VoiceProtocol): 
-                # print("inside isinstance:\n\n")
-                await ctx.send("Bot has connected to " + str(self.caller_channel_name))
-            return True
+            self.player.vc = await self.caller_channel_name.connect(
+                timeout=.5, reconnect=True, self_mute=False, self_deaf=True)
         except discord.ClientException:
             # Not sure if 'if' statement will ever execute because if it does, it means that bot is connected to 
             # some voice channel. If it is connected, then get_bot_channel_info should not return False. 
@@ -59,19 +49,20 @@ class Command(commands.Cog):
             if self.bot_channel_member_num == 1:
                 self.player.clear_music_queue()
                 # await self.bot.move_to(self.caller_channel_name)
-                # check if vc cleaning is needed! 
                 await disconnect_bot(ctx, "")
                 await self.join(ctx)                
                 return True
             else:
                 if self.caller_channel_name == self.bot_channel_name:
-                    # await ctx.send("Bot is in the voice channel with you.")
                     return True
                 else:
                     await ctx.send("Bot is already connected to a voice channel.")
                     return False
         except asyncio.TimeoutError:
             await ctx.send("Bot could not connect to the voice channel in time.")
+        else:
+            await ctx.send("Bot has connected to " + str(self.caller_channel_name))
+            return True
 
     @commands.command()
     async def leave(self, ctx):
@@ -127,7 +118,7 @@ class Command(commands.Cog):
             return
 
         if self.caller_channel_name == self.bot_channel_name:
-            if self.player.pause_music() is False:
+            if self.player.pause_music(ctx) is False:
                 await ctx.send("Nothing to pause.")
             else:
                 title = '*' + self.player.current_song['title'] + '*'
@@ -144,11 +135,11 @@ class Command(commands.Cog):
             return
         
         if self.caller_channel_name == self.bot_channel_name:
-            if self.player.resume_music() is False:
+            if self.player.resume_music(ctx) is False:
                 await ctx.send("Nothing to resume.")
             else:
                 title = '*' + self.player.current_song['title'] + '*'
-                await ctx.send("**Resumes: ** " + title)
+                await ctx.send("**Resumed: ** " + title)
         else:
             await ctx.send("Can't resume. Join the voice channel to control the bot.")
 
@@ -180,5 +171,6 @@ class Command(commands.Cog):
 async def disconnect_bot(ctx, msg):
     vc = ctx.guild.voice_client
     await vc.disconnect()
+    vc.cleanup()
     if len(msg) != 0:
         await ctx.send(msg)
