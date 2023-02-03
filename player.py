@@ -1,6 +1,7 @@
 import discord
 import dequeue
 import asyncio
+import misc
 import youtube_dl.utils
 from discord.ext import commands
 from youtube_dl import YoutubeDL
@@ -14,21 +15,14 @@ def is_music_paused(ctx):
     return ctx.voice_client.is_paused()
 
 
-def italicize(txt):
-    return '*' + txt + '*'
-
-
 class Player(commands.Cog):
     def __init__(self, bot):
-        # Bot
         self.bot = bot
 
-        # Youtube
         self.YDL_OPTIONS = {'format': 'bestaudio', 'noplaylist': 'True'}
         self.FFMPEG_OPTIONS = {'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5',
                                'options': '-vn'}
 
-        # Player
         self.vc = None
         self.current_song = None
         self.last_added = None
@@ -47,23 +41,23 @@ class Player(commands.Cog):
 
     def player(self, ctx):
         if is_music_playing(ctx):
-            song_title = italicize(self.last_added['title'])
+            song_title = misc.italicize(self.last_added['title'])
             asyncio.run_coroutine_threadsafe(ctx.send("**Added to queue: ** " + song_title), self.bot.loop)
-            # await ctx.send("**Added to queue: ** " + song_title)
             return
-        else:
-            self.play_music(ctx)
-            return
+
+        self.play_music(ctx)
+        return
 
     def play_music(self, ctx):
         if dequeue.size() > 0:
-            self.current_song = dequeue.pop_left()
-            url = self.current_song['source']
-            song_title = italicize(self.current_song['title'])
-            self.vc.play(discord.FFmpegPCMAudio(url, **self.FFMPEG_OPTIONS), after=lambda e: self.play_music(ctx))
-            asyncio.run_coroutine_threadsafe(ctx.send("**Now playing: ** " + song_title), self.bot.loop)
-            return
-
+            if is_music_playing(ctx) is False:
+                self.current_song = dequeue.pop_left()
+                url = self.current_song['source']
+                song_title = misc.italicize(self.current_song['title'])
+                ret = self.vc.play(discord.FFmpegPCMAudio(url, **self.FFMPEG_OPTIONS), after=lambda e: self.play_music(ctx))
+                print(ret)
+                asyncio.run_coroutine_threadsafe(ctx.send("**Now playing: ** " + song_title), self.bot.loop)
+                return
         return
 
     def pause_music(self, ctx):
@@ -89,6 +83,28 @@ class Player(commands.Cog):
             self.vc.stop()
             self.play_music(ctx)
             return True
+
+    def current_music(self, ctx):
+        if is_music_playing(ctx) is True or is_music_paused(ctx) is True:
+            return "**Currently playing: **" + misc.italicize(self.current_song['title'])
+        return "Queue is empty."
+
+    def is_queue_empty(self, ctx):
+        if dequeue.is_empty():
+            return True
+        return False
+
+    def get_queue_content(self):
+        ret = "**Current queue:** "
+        idx = 1
+        for i in dequeue.queue:
+            num = '\n\t' + str(idx) + '.\t'
+            # _num = '\n' + str(idx) + '. '
+            res = num + i['title']
+            ret += res
+            idx += 1
+        print(ret)
+        return ret
 
     def clear_music_queue(self):
         self.vc.stop()
