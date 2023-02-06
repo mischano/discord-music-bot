@@ -49,15 +49,38 @@ class Player(commands.Cog):
         return
 
     def play_music(self, ctx):
-        if dequeue.size() > 0:
-            if is_music_playing(ctx) is False:
-                self.current_song = dequeue.pop_left()
-                url = self.current_song['source']
-                song_title = misc.italicize(self.current_song['title'])
-                ret = self.vc.play(discord.FFmpegPCMAudio(url, **self.FFMPEG_OPTIONS), after=lambda e: self.play_music(ctx))
-                print(ret)
-                asyncio.run_coroutine_threadsafe(ctx.send("**Now playing: ** " + song_title), self.bot.loop)
-                return
+        if dequeue.size() > 0 and is_music_playing(ctx) is False:
+            self.current_song = dequeue.pop_left()
+            url = self.current_song['source']
+            song_title = misc.italicize(self.current_song['title'])
+
+            for attempt in range(3):
+                try:
+                    ret = discord.FFmpegPCMAudio(url, **self.FFMPEG_OPTIONS)
+                except discord.ClientException:
+                    asyncio.run_coroutine_threadsafe(
+                         ctx.send("FFmpegPCMAudio has failed. Trying to reconnected...\n"), self.bot.loop
+                    )
+                else:
+                    for i in range(3):
+                        try:
+                            self.vc.play(ret, after=lambda e: self.play_music(ctx))
+                        except discord.ClientException:
+                            print("Failed in self.vc.play: ClientException.")
+                            # await ctx.send("Failed in self.vc.play: ClientException.")
+                            asyncio.run_coroutine_threadsafe(ctx.send("Failed in self.vc.play: ClientException."), self.bot.loop)
+                        except TypeError:
+                            print("Failed in self.vc.play: TypeError")
+                            # await ctx.send("Failed in self.vc.play: TypeError")
+                            asyncio.run_coroutine_threadsafe(ctx.send("Failed in self.vc.play: TypeError"), self.bot.loop)
+                        except discord.opus.OpusError:
+                            print("Failed in self.vc.play: OpusError")
+                            asyncio.run_coroutine_threadsafe(ctx.send("Failed in self.vc.play: OpusError"), self.bot.loop)
+                            # await ctx.send("Failed in self.vc.play: OpusError")
+                        else:
+                            asyncio.run_coroutine_threadsafe(ctx.send("**Now playing: ** " + song_title), self.bot.loop)
+                            return
+                        # break
         return
 
     def pause_music(self, ctx):
@@ -88,23 +111,6 @@ class Player(commands.Cog):
         if is_music_playing(ctx) is True or is_music_paused(ctx) is True:
             return "**Currently playing: **" + misc.italicize(self.current_song['title'])
         return "Queue is empty."
-
-    def is_queue_empty(self, ctx):
-        if dequeue.is_empty():
-            return True
-        return False
-
-    def get_queue_content(self):
-        ret = "**Current queue:** "
-        idx = 1
-        for i in dequeue.queue:
-            num = '\n\t' + str(idx) + '.\t'
-            # _num = '\n' + str(idx) + '. '
-            res = num + i['title']
-            ret += res
-            idx += 1
-        print(ret)
-        return ret
 
     def clear_music_queue(self):
         self.vc.stop()

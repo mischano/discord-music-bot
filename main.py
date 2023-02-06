@@ -10,7 +10,7 @@ if __name__ == '__main__':
     load_dotenv()
 
     # TOKEN = os.getenv("TOKEN")
-    TOKEN = "MTA2NjYwMjAwODg4NDMwMTg1NA.Gzc3S7.5V0_Bc1tWzNIAj083x2PWHYshXsFkg1UbckRDU"
+    TOKEN = "MTA2NjYwMjAwODg4NDMwMTg1NA.GGsoGN.ntqTGpx5Dc2IFU_gJ5NLqh38BV3dJ4ITRN4wu4"
     intents = discord.Intents.default()
     intents.message_content = True
     client = commands.Bot(command_prefix='!', intents=intents)
@@ -21,6 +21,5 @@ if __name__ == '__main__':
         player = Player(client)
         await client.add_cog(player)
         await client.add_cog(Command(client, player))
-
 
     client.run(TOKEN)

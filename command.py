@@ -1,6 +1,7 @@
 import discord
 import asyncio
 import misc
+import dequeue
 from discord.ext import commands
 
 
@@ -38,7 +39,7 @@ class Command(commands.Cog):
     @commands.command(aliases=['j'])
     async def join(self, ctx):
         if await self.get_caller_channel(ctx) is False:
-            ctx.send("You are not connected to a voice channel.")
+            await ctx.send("You are not connected to a voice channel.")
             return False
 
         try:
@@ -92,7 +93,7 @@ class Command(commands.Cog):
     @commands.command(aliases=['s'])
     async def skip(self, ctx):
         if await self.get_caller_channel(ctx) is False:
-            ctx.send("You are not connected to a voice channel.")
+            await ctx.send("You are not connected to a voice channel.")
             return
 
         if self.get_bot_channel_info(ctx) is False:
@@ -123,7 +124,7 @@ class Command(commands.Cog):
 
         if self.caller_channel_name == self.bot_channel_name:
             if self.player.pause_music(ctx) is False:
-                await ctx.send("Nothing to pause.")
+                await ctx.send("Can't pause. Bot is not playing anything.")
             else:
                 title = misc.italicize(self.player.current_song['title'])
                 await ctx.send("**Paused: ** " + title)
@@ -160,10 +161,12 @@ class Command(commands.Cog):
         if self.get_bot_channel_info(ctx) is False:
             await ctx.send("Bot is not connected to a voice channel.")
             return
-        if self.player.is_queue_empty(ctx):
+        if dequeue.is_empty():
             await ctx.send("The queue is empty.")
             return
-        await ctx.send(self.player.get_queue_content())
+        queue = dequeue.get_all()
+        msg = "**Current queue: **\n" + queue
+        await ctx.send(msg)
 
     @commands.command()
     async def remove(self, args):
@@ -188,7 +191,17 @@ class Command(commands.Cog):
                        "\t-[skip, s]\n"
                        "\t-[current, c]\n"
                        "\t-[queue, q]\n"
-                       "\t-[loop]\n")
+                       "\t-[loop]\n"
+                       "The bot is on a beta state. If you have questions, comments, or __bug reports__, "
+                       "please contact\n the mods or **sheriff** directly.")
+
+    @commands.Cog.listener()
+    async def on_voice_state_update(self, member, before, after):
+        print(before)
+        print(after)
+        if before.channel is None and after.channel is not None:
+            if after.channel.id == self.caller_channel_id:
+                await member.guild.system_channel.send("Alarm!")
 
     def get_bot_channel_info(self, ctx):
         self.bot = discord.utils.get(ctx.bot.voice_clients, guild=ctx.guild)
