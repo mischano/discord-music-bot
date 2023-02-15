@@ -1,4 +1,5 @@
 from collections import deque
+from random import shuffle
 
 max_len = 100
 queue = deque([], maxlen=max_len)
@@ -23,10 +24,13 @@ def pop_left():
 def insert(index, elem):
     queue.insert(index, elem)
 
-
-def remove(value):
-    queue.remove(value)
-
+def remove(elem):
+    try:
+        deque.remove(elem)
+    except ValueError:
+        return False
+    else:
+        return True
 
 def size():
     return len(queue)
@@ -45,5 +49,7 @@ def clear_all():
     queue.clear()
 
 
-def shuffle():
-    pass
+def shuffle_all():
+    print("hello")
+    print(deque)
+    shuffle(queue)

@@ -57,7 +57,7 @@ Skip():
                     = Nothing is playing (paused), skip song.
                 + List is not empty:
                      = Skip song & play next song.
-
+  
 List():
     1. Bot is not connected to vc, signal message.
     2. Bot is connected to vc:

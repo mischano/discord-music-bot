@@ -1,7 +1,7 @@
 import discord
 import asyncio
 import misc
-import dequeue
+import playlist
 from discord.ext import commands
 
 
@@ -31,14 +31,14 @@ class Command(commands.Cog):
 
         query = " ".join(args)
         if self.player.search(query) is False:
-            await ctx.send("Bot has failed to find the song.")
+            await ctx.send("Couldn't find the song.")
             return
 
         self.player.player(ctx)
 
     @commands.command(aliases=['j'])
     async def join(self, ctx):
-        if await self.get_caller_channel(ctx) is False:
+        if self.get_caller_channel(ctx) is False:
             await ctx.send("You are not connected to a voice channel.")
             return False
 
@@ -50,7 +50,7 @@ class Command(commands.Cog):
                 await ctx.send("Failed in *get_channel_info*. Please report the issue to **sheriff**. Thank you!")
                 return False
             if self.bot_channel_member_num == 1:
-                self.player.clear_music_queue()
+                self.player.clear_playlist()
                 await disconnect_bot(ctx)
                 await self.join(ctx)
                 return True
@@ -58,19 +58,20 @@ class Command(commands.Cog):
                 if self.caller_channel_name == self.bot_channel_name:
                     return True
                 else:
-                    await ctx.send("Bot is already connected to a voice channel.")
+                    await ctx.send("Already connected to a voice channel.")
                     return False
         except asyncio.TimeoutError:
-            await ctx.send("Bot could not connect to the voice channel in time.")
+            await ctx.send("Couldn't connect to the voice channel in time.")
             return False
         else:
-            await ctx.send("Bot has connected to " + str(self.caller_channel_name))
+            await ctx.send("Connected to " + str(self.caller_channel_name))
             return True
 
-    @commands.command(aliases=['l'])
-    async def leave(self, ctx):
+    # REDO THIS! 
+    @commands.command(aliases=['q'])
+    async def quit(self, ctx):
         if self.get_bot_channel_info(ctx) is False:
-            await ctx.send("Bot is not connected to a voice channel.")
+            await ctx.send("Not connected to a voice channel.")
             return
 
         if self.bot_channel_member_num == 1:
@@ -78,8 +79,8 @@ class Command(commands.Cog):
             await ctx.send("Bye!")
             return
 
-        if await self.get_caller_channel(ctx) is False:
-            ctx.send("Bot is in the voice channel with other user(s).")
+        if self.get_caller_channel(ctx) is False:
+            ctx.send("In the voice channel with other user(s).")
             return
         else:
             if self.caller_channel_id == self.bot_channel_id:
@@ -87,26 +88,26 @@ class Command(commands.Cog):
                 await ctx.send("Bye!")
                 return
             else:
-                await ctx.send("Bot is in the voice channel with other user(s).")
+                await ctx.send("In the voice channel with other user(s).")
                 return
 
     @commands.command(aliases=['s'])
     async def skip(self, ctx):
-        if await self.get_caller_channel(ctx) is False:
+        if self.get_caller_channel(ctx) is False:
             await ctx.send("You are not connected to a voice channel.")
             return
 
         if self.get_bot_channel_info(ctx) is False:
-            await ctx.send("Bot is not connected to a voice channel.")
+            await ctx.send("Not connected to a voice channel.")
             return
 
         if self.caller_channel_id != self.bot_channel_id:
-            await ctx.send("Can't skip. Join the voice channel to control the bot.")
+            await ctx.send("Can't skip. Join the voice channel first.")
             return
 
         if self.player.skip_music(ctx) is False:
-            await ctx.send("Nothing is playing.")
-            return
+            await ctx.send("Playlist is empty.")
+            return  
 
         skipped_song = misc.italicize(self.player.current_song['title'])
         await ctx.send("**Skipped: ** " + skipped_song)
@@ -114,67 +115,109 @@ class Command(commands.Cog):
 
     @commands.command()
     async def pause(self, ctx):
-        if await self.get_caller_channel(ctx) is False:
+        if self.get_caller_channel(ctx) is False:
             ctx.send("You are not connected to a voice channel")
             return
 
         if self.get_bot_channel_info(ctx) is False:
-            await ctx.send("Bot is not connected to a voice channel.")
+            await ctx.send("Not connected to a voice channel.")
             return
 
         if self.caller_channel_name == self.bot_channel_name:
             if self.player.pause_music(ctx) is False:
-                await ctx.send("Can't pause. Bot is not playing anything.")
+                await ctx.send("Can't pause. Playlist is empty.")
             else:
                 title = misc.italicize(self.player.current_song['title'])
                 await ctx.send("**Paused: ** " + title)
         else:
-            await ctx.send("Can't pause. Join the voice channel to control the bot.")
+            await ctx.send("Can't pause. Join the voice channel first.")
 
     @commands.command()
     async def resume(self, ctx):
-        if await self.get_caller_channel(ctx) is False:
+        if self.get_caller_channel(ctx) is False:
             await ctx.send("You are not connected to a voice channel.")
             return
         if self.get_bot_channel_info(ctx) is False:
-            await ctx.send("Bot is not connected to a voice channel.")
+            await ctx.send("Not connected to a voice channel.")
             return
 
         if self.caller_channel_name == self.bot_channel_name:
             if self.player.resume_music(ctx) is False:
-                await ctx.send("Nothing to resume.")
+                await ctx.send("Can't resume. Playlist is empty.")
             else:
                 title = misc.italicize(self.player.current_song['title'])
                 await ctx.send("**Resumed: ** " + title)
         else:
-            await ctx.send("Can't resume. Join the voice channel to control the bot.")
+            await ctx.send("Can't resume. Join the voice channel first.")
 
     @commands.command(aliases=['c'])
     async def current(self, ctx):
         if self.get_bot_channel_info(ctx) is False:
-            await ctx.send("Bot is not connected to a voice channel.")
+            await ctx.send("Not connected to a voice channel.")
             return
-        await ctx.send(self.player.current_music(ctx))
+        if self.player.current_music(ctx) is False:
+            await ctx.send("Playlist is empty.")
+        else:
+            title = misc.italicize(self.player.current_song['title'])
+            await ctx.send("**Currently playing: ** " + title)
+        return
 
-    @commands.command(aliases=['q'])
-    async def queue(self, ctx):
+    @commands.command(aliases=['l'])
+    async def list(self, ctx):
         if self.get_bot_channel_info(ctx) is False:
-            await ctx.send("Bot is not connected to a voice channel.")
+            await ctx.send("Not connected to a voice channel.")
             return
-        if dequeue.is_empty():
-            await ctx.send("The queue is empty.")
+        if playlist.is_empty():
+            await ctx.send("Playlist is empty.")
             return
-        queue = dequeue.get_all()
-        msg = "**Current queue: **\n" + queue
+        queue = playlist.get_all()
+        msg = "**Current playlist: **\n" + queue
         await ctx.send(msg)
 
     @commands.command()
-    async def remove(self, args):
-        pass
+    async def remove(self, ctx, *args):
+        if self.get_caller_channel(ctx) is False:
+            await ctx.send("You are not connected to a voice channel.")
+            return
+        if self.get_bot_channel_info(ctx) is False:
+            await ctx.send("Not connected to a voice channel.")
+            return
+        if self.caller_channel_name != self.bot_channel_name:
+            await ctx.send("Can't remove. Join the voice channel first.")
+            return
+        
+        input = "".join(args)
+        try:
+            elem = int(input)
+        except ValueError:
+            await ctx.send("Can't read the number.")
+            return
+        
+        if playlist.remove(elem) is False:
+            await ctx.send("Number is out of range.")
+        else:
+            await ctx.send("Song is removed from the playlist.")
+        return
+        
 
     @commands.command()
     async def shuffle(self, ctx):
-        pass
+        if self.get_bot_channel_info(ctx) is False:
+            await ctx.send("Not connected to a voice channel.")
+            return
+        if self.get_caller_channel(ctx) is False:
+            await ctx.send("User is not connected to a voice channel.")
+            return
+        if self.caller_channel_name != self.bot_channel_name:
+            await ctx.send("Can't shuffle. Join the voice channel first.")
+            return
+        
+        if self.player.shuffle_music is False:
+            await ctx.send("Not enough songs in the playlist to shuffle.")
+        else:
+            await ctx.send("Shuffled.")
+
+        return
 
     @commands.command()
     async def loop(self, ctx):
@@ -185,23 +228,25 @@ class Command(commands.Cog):
         await ctx.send("Current list of commands:\n"
                        "\t-[play, p]\n"
                        "\t-[join, j]\n"
-                       "\t-[leave, l]\n"
+                       "\t-[quit, q]\n"
                        "\t-[pause] \n"
                        "\t-[resume]\n"
                        "\t-[skip, s]\n"
                        "\t-[current, c]\n"
-                       "\t-[queue, q]\n"
+                       "\t-[list, l]\n"
                        "\t-[loop]\n"
-                       "The bot is on a beta state. If you have questions, comments, or __bug reports__, "
-                       "please contact\n the mods or **sheriff** directly.")
+                       "The bot is still in development. If you have __bug reports__, "
+                       "please contact **sheriff**.")
 
     @commands.Cog.listener()
     async def on_voice_state_update(self, member, before, after):
+        print(member)
         print(before)
         print(after)
         if before.channel is None and after.channel is not None:
             if after.channel.id == self.caller_channel_id:
-                await member.guild.system_channel.send("Alarm!")
+                return
+                # await member.guild.system_channel.send("Alarm!")
 
     def get_bot_channel_info(self, ctx):
         self.bot = discord.utils.get(ctx.bot.voice_clients, guild=ctx.guild)
@@ -214,7 +259,7 @@ class Command(commands.Cog):
         self.bot_channel_member_num = len(self.bot_channel_name.members)
         return True
 
-    async def get_caller_channel(self, ctx):
+    def get_caller_channel(self, ctx):
         caller = ctx.author.voice
         if caller is None:
             return False

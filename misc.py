@@ -1,4 +1,4 @@
-import dequeue
+import playlist
 
 
 def italicize(txt):
