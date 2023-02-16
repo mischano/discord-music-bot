@@ -2,13 +2,14 @@ import discord
 import asyncio
 import misc
 import playlist
+import settings
 from discord.ext import commands
-
 
 async def disconnect_bot(ctx):
     vc = ctx.guild.voice_client
     await vc.disconnect()
     vc.cleanup()
+    playlist.clear_all()
 
 
 class Command(commands.Cog):
@@ -50,7 +51,6 @@ class Command(commands.Cog):
                 await ctx.send("Failed in *get_channel_info*. Please report the issue to **sheriff**. Thank you!")
                 return False
             if self.bot_channel_member_num == 1:
-                self.player.clear_playlist()
                 await disconnect_bot(ctx)
                 await self.join(ctx)
                 return True
@@ -171,7 +171,8 @@ class Command(commands.Cog):
             await ctx.send("Playlist is empty.")
             return
         queue = playlist.get_all()
-        msg = "**Current playlist: **\n" + queue
+        msg = "**Playing: ** " + self.player.current_song['title']
+        msg += "\n**Playlist: ** " + queue
         await ctx.send(msg)
 
     @commands.command()
@@ -193,13 +194,12 @@ class Command(commands.Cog):
             await ctx.send("Can't read the number.")
             return
         
-        if playlist.remove(elem) is False:
+        if playlist.remove(elem - 1) is False:
             await ctx.send("Number is out of range.")
         else:
             await ctx.send("Song is removed from the playlist.")
         return
         
-
     @commands.command()
     async def shuffle(self, ctx):
         if self.get_bot_channel_info(ctx) is False:
@@ -212,7 +212,7 @@ class Command(commands.Cog):
             await ctx.send("Can't shuffle. Join the voice channel first.")
             return
         
-        if self.player.shuffle_music is False:
+        if self.player.shuffle_music() is False:
             await ctx.send("Not enough songs in the playlist to shuffle.")
         else:
             await ctx.send("Shuffled.")
@@ -225,29 +225,8 @@ class Command(commands.Cog):
 
     @commands.command()
     async def helpme(self, ctx):
-        await ctx.send("Current list of commands:\n"
-                       "\t-[play, p]\n"
-                       "\t-[join, j]\n"
-                       "\t-[quit, q]\n"
-                       "\t-[pause] \n"
-                       "\t-[resume]\n"
-                       "\t-[skip, s]\n"
-                       "\t-[current, c]\n"
-                       "\t-[list, l]\n"
-                       "\t-[loop]\n"
-                       "The bot is still in development. If you have __bug reports__, "
-                       "please contact **sheriff**.")
-
-    @commands.Cog.listener()
-    async def on_voice_state_update(self, member, before, after):
-        print(member)
-        print(before)
-        print(after)
-        if before.channel is None and after.channel is not None:
-            if after.channel.id == self.caller_channel_id:
-                return
-                # await member.guild.system_channel.send("Alarm!")
-
+        await ctx.send(settings.help_string)                  
+        
     def get_bot_channel_info(self, ctx):
         self.bot = discord.utils.get(ctx.bot.voice_clients, guild=ctx.guild)
         if self.bot is None:

@@ -1,11 +1,12 @@
-Join():
-    1. Caller is not connected to vc, signal message.
-    2. Caller is connected to vc:
-        * Bot is not connected to vc, connect.
-        * Bot is connected to vc (different channel, by itself), disconnect bot, connect to current channel.
-        * Bot is connected to vc, (different channel, not by itself), signal message.
-        * Bot is connected to vc (same channel as caller), do nothing.
-
+LIST OF COMMANDS: 
+Join(): 
+    * If caller is not connected to a vc, signal message.
+    * If caller is connected to vc:
+        * If bot is not connected to vc, connect the bot.
+        * If bot is connected to vc:
+            * If bot is by itself in a different channel, re-connect to callers channel.
+            * If bot is not by itself in a different channel, signal message.
+            * If bot is the same channel as the caller, do nothing. 
 
 Leave():
     1. Caller is not connected to vc:

@@ -12,8 +12,6 @@ def is_music_playing(ctx):
     if caller is None:
         return False
     return caller.is_playing()
-    # return ctx.voice_client.is_playing()
-
 
 def is_music_paused(ctx):
     return ctx.voice_client.is_paused()
@@ -122,11 +120,9 @@ class Player(commands.Cog):
             return True
         return False
     
-    def shuffle_music():
-        print(playlist.size())
+    def shuffle_music(self):
         if playlist.size() <= 0:
             return False
-        print(playlist.size())
         playlist.shuffle_all()
         return True
 

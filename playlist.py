@@ -26,8 +26,10 @@ def insert(index, elem):
 
 def remove(elem):
     try:
-        deque.remove(elem)
-    except ValueError:
+        # print(queue[elem])
+        # deque.remove(elem)
+        del queue[elem]
+    except IndexError:
         return False
     else:
         return True
@@ -41,15 +43,12 @@ def is_empty():
 
 
 def get_all():
-    res = '\n'.join(f'{idx+1}. ' + i['title'] for idx, i in enumerate(queue))
+    res = '\n'.join(f'{idx}. ' + i['title'] for idx, i in enumerate(queue, start=1))
     return res
 
+def shuffle_all():
+    shuffle(queue)
 
 def clear_all():
     queue.clear()
 
-
-def shuffle_all():
-    print("hello")
-    print(deque)
-    shuffle(queue)
