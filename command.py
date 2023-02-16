@@ -3,6 +3,7 @@ import asyncio
 import misc
 import playlist
 import settings
+from emojis import *
 from discord.ext import commands
 
 async def disconnect_bot(ctx):
@@ -64,7 +65,8 @@ class Command(commands.Cog):
             await ctx.send("Couldn't connect to the voice channel in time.")
             return False
         else:
-            await ctx.send("Connected to " + str(self.caller_channel_name))
+            
+            await ctx.send(f"{notes_} Connected to {self.caller_channel_name} {notes_}")
             return True
 
     # REDO THIS! 
@@ -85,7 +87,7 @@ class Command(commands.Cog):
         else:
             if self.caller_channel_id == self.bot_channel_id:
                 await disconnect_bot(ctx)
-                await ctx.send("Bye!")
+                await ctx.send(f"Bye! {v_hand}")
                 return
             else:
                 await ctx.send("In the voice channel with other user(s).")
@@ -110,7 +112,7 @@ class Command(commands.Cog):
             return  
 
         skipped_song = misc.italicize(self.player.current_song['title'])
-        await ctx.send("**Skipped: ** " + skipped_song)
+        await ctx.send("**Skipped: ** \n> " + skipped_song)
         return
 
     @commands.command()
@@ -125,10 +127,10 @@ class Command(commands.Cog):
 
         if self.caller_channel_name == self.bot_channel_name:
             if self.player.pause_music(ctx) is False:
-                await ctx.send("Can't pause. Playlist is empty.")
+                await ctx.send("Can't pause. Nothing is playing.")
             else:
                 title = misc.italicize(self.player.current_song['title'])
-                await ctx.send("**Paused: ** " + title)
+                await ctx.send(f"{pause_} **Paused: ** \n> " + title)
         else:
             await ctx.send("Can't pause. Join the voice channel first.")
 
@@ -143,10 +145,10 @@ class Command(commands.Cog):
 
         if self.caller_channel_name == self.bot_channel_name:
             if self.player.resume_music(ctx) is False:
-                await ctx.send("Can't resume. Playlist is empty.")
+                await ctx.send("Can't resume. Nothing is paused.")
             else:
                 title = misc.italicize(self.player.current_song['title'])
-                await ctx.send("**Resumed: ** " + title)
+                await ctx.send(f"{resume_} **Resumed: ** \n> " + title)
         else:
             await ctx.send("Can't resume. Join the voice channel first.")
 
@@ -159,7 +161,7 @@ class Command(commands.Cog):
             await ctx.send("Playlist is empty.")
         else:
             title = misc.italicize(self.player.current_song['title'])
-            await ctx.send("**Currently playing: ** " + title)
+            await ctx.send("**Currently playing: ** \n> " + title)
         return
 
     @commands.command(aliases=['l'])
@@ -171,8 +173,8 @@ class Command(commands.Cog):
             await ctx.send("Playlist is empty.")
             return
         queue = playlist.get_all()
-        msg = "**Playing: ** " + self.player.current_song['title']
-        msg += "\n**Playlist: ** " + queue
+        msg = "**Playing: ** \n> " + self.player.current_song['title']
+        msg += "\n**Playlist: ** \n> " + queue
         await ctx.send(msg)
 
     @commands.command()
@@ -193,7 +195,7 @@ class Command(commands.Cog):
         except ValueError:
             await ctx.send("Can't read the number.")
             return
-        
+
         if playlist.remove(elem - 1) is False:
             await ctx.send("Number is out of range.")
         else:
@@ -215,7 +217,7 @@ class Command(commands.Cog):
         if self.player.shuffle_music() is False:
             await ctx.send("Not enough songs in the playlist to shuffle.")
         else:
-            await ctx.send("Shuffled.")
+            await ctx.send(f"{shuffle_} Shuffled.")
 
         return
 

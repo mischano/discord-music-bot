@@ -1,0 +1,5 @@
+notes_ = "\U0001F3B6"
+v_hand_ = "\U0000270C"
+shuffle_ = "\U0001F500"
+pause_ = "\U000023F8"
+resume_ = "\U000025B6"

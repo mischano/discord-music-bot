@@ -44,7 +44,7 @@ class Player(commands.Cog):
     def player(self, ctx):
         if is_music_playing(ctx):
             song_title = misc.italicize(self.last_added['title'])
-            asyncio.run_coroutine_threadsafe(ctx.send("**Added to playlist: ** " + song_title), self.bot.loop)
+            asyncio.run_coroutine_threadsafe(ctx.send("**Added to playlist: ** \n> " + song_title), self.bot.loop)
         else:
             self.play_music(ctx)
         return
@@ -70,23 +70,13 @@ class Player(commands.Cog):
                         self.vc.play(ret, after=lambda e: self.play_music(ctx))
                     except discord.ClientException:
                         print("Failed in self.vc.play: ClientException.")
-                        # await ctx.send("Failed in self.vc.play: ClientException.")
-                        # asyncio.run_coroutine_threadsafe(ctx.send("Failed in self.vc.play: ClientException."), self.bot.loop)
                     except TypeError:
                         print("Failed in self.vc.play: TypeError")
-                        # await ctx.send("Failed in self.vc.play: TypeError")
-                        # asyncio.run_coroutine_threadsafe(ctx.send("Failed in self.vc.play: TypeError"), self.bot.loop)
                     except discord.opus.OpusError:
                         print("Failed in self.vc.play: OpusError")
-                        # asyncio.run_coroutine_threadsafe(ctx.send("Failed in self.vc.play: OpusError"), self.bot.loop)
-                        # await ctx.send("Failed in self.vc.play: OpusError")
                     else:
-                        asyncio.run_coroutine_threadsafe(ctx.send("**Now playing: ** " + song_title), self.bot.loop)
+                        asyncio.run_coroutine_threadsafe(ctx.send("**Now playing: ** \n> " + song_title), self.bot.loop)
                         return
-                    # break
-        # print("Do I get here?")
-        # asyncio.run_coroutine_threadsafe(ctx.send("Do I get here?"), self.bot.loop)
-
 
     def pause_music(self, ctx):
         if is_music_paused(ctx) is True or is_music_playing(ctx) is False:

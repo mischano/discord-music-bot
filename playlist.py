@@ -26,8 +26,6 @@ def insert(index, elem):
 
 def remove(elem):
     try:
-        # print(queue[elem])
-        # deque.remove(elem)
         del queue[elem]
     except IndexError:
         return False
@@ -43,7 +41,7 @@ def is_empty():
 
 
 def get_all():
-    res = '\n'.join(f'{idx}. ' + i['title'] for idx, i in enumerate(queue, start=1))
+    res = '\n> '.join(f'{idx}. ' + i['title'] for idx, i in enumerate(queue, start=1))
     return res
 
 def shuffle_all():
