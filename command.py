@@ -1,9 +1,9 @@
 import discord
 import asyncio
-import misc
+import stylizer
 import playlist
 import settings
-from emojis import *
+from stylizer import *
 from discord.ext import commands
 
 async def disconnect_bot(ctx):
@@ -46,7 +46,8 @@ class Command(commands.Cog):
 
         try:
             self.player.vc = await self.caller_channel_name.connect(
-                timeout=.5, reconnect=True, self_mute=False, self_deaf=True)
+                timeout=.5, reconnect=True, self_mute=False, self_deaf=True
+                )
         except discord.ClientException:
             if self.get_bot_channel_info(ctx) is False:
                 await ctx.send("Failed in *get_channel_info*. Please report the issue to **sheriff**. Thank you!")
@@ -66,7 +67,7 @@ class Command(commands.Cog):
             return False
         else:
             
-            await ctx.send(f"{notes_} Connected to {self.caller_channel_name} {notes_}")
+            await ctx.send(f"{emj_notes} Connected to {self.caller_channel_name} {emj_notes}")
             return True
 
     # REDO THIS! 
@@ -78,7 +79,7 @@ class Command(commands.Cog):
 
         if self.bot_channel_member_num == 1:
             await disconnect_bot(ctx)
-            await ctx.send("Bye!")
+            await ctx.send(f"Bye! {emj_v_hand}")
             return
 
         if self.get_caller_channel(ctx) is False:
@@ -87,7 +88,7 @@ class Command(commands.Cog):
         else:
             if self.caller_channel_id == self.bot_channel_id:
                 await disconnect_bot(ctx)
-                await ctx.send(f"Bye! {v_hand}")
+                await ctx.send(f"Bye! {emj_v_hand}")
                 return
             else:
                 await ctx.send("In the voice channel with other user(s).")
@@ -111,8 +112,8 @@ class Command(commands.Cog):
             await ctx.send("Playlist is empty.")
             return  
 
-        skipped_song = misc.italicize(self.player.current_song['title'])
-        await ctx.send("**Skipped: ** \n> " + skipped_song)
+        skipped_song = stylizer.italicize(self.player.current_song['title'])
+        await ctx.send(f"**Skipped: ** \n> {skipped_song} {emj_ok_hand}")
         return
 
     @commands.command()
@@ -129,8 +130,8 @@ class Command(commands.Cog):
             if self.player.pause_music(ctx) is False:
                 await ctx.send("Can't pause. Nothing is playing.")
             else:
-                title = misc.italicize(self.player.current_song['title'])
-                await ctx.send(f"{pause_} **Paused: ** \n> " + title)
+                title = stylizer.italicize(self.player.current_song['title'])
+                await ctx.send(f"{emj_pause} **Paused: ** \n> {title}")
         else:
             await ctx.send("Can't pause. Join the voice channel first.")
 
@@ -147,8 +148,8 @@ class Command(commands.Cog):
             if self.player.resume_music(ctx) is False:
                 await ctx.send("Can't resume. Nothing is paused.")
             else:
-                title = misc.italicize(self.player.current_song['title'])
-                await ctx.send(f"{resume_} **Resumed: ** \n> " + title)
+                title = stylizer.italicize(self.player.current_song['title'])
+                await ctx.send(f"{emj_resume} **Resumed: ** \n> {title}")
         else:
             await ctx.send("Can't resume. Join the voice channel first.")
 
@@ -160,8 +161,8 @@ class Command(commands.Cog):
         if self.player.current_music(ctx) is False:
             await ctx.send("Playlist is empty.")
         else:
-            title = misc.italicize(self.player.current_song['title'])
-            await ctx.send("**Currently playing: ** \n> " + title)
+            title = stylizer.italicize(self.player.current_song['title'])
+            await ctx.send(f"**Currently playing: ** \n> {title}")
         return
 
     @commands.command(aliases=['l'])
@@ -172,10 +173,10 @@ class Command(commands.Cog):
         if playlist.is_empty():
             await ctx.send("Playlist is empty.")
             return
+        
         queue = playlist.get_all()
-        msg = "**Playing: ** \n> " + self.player.current_song['title']
-        msg += "\n**Playlist: ** \n> " + queue
-        await ctx.send(msg)
+        await ctx.send(f"**Playing: ** \n> {self.player.current_song['title']}\n**Playlist: ** \n> {queue}")
+        return
 
     @commands.command()
     async def remove(self, ctx, *args):
@@ -217,7 +218,7 @@ class Command(commands.Cog):
         if self.player.shuffle_music() is False:
             await ctx.send("Not enough songs in the playlist to shuffle.")
         else:
-            await ctx.send(f"{shuffle_} Shuffled.")
+            await ctx.send(f"{emj_shuffle} Shuffled.")
 
         return
 

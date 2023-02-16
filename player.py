@@ -1,7 +1,7 @@
 import discord
 import playlist
 import asyncio
-import misc
+from stylizer import *
 import youtube_dl.utils
 from discord.ext import commands
 from youtube_dl import YoutubeDL
@@ -43,7 +43,7 @@ class Player(commands.Cog):
 
     def player(self, ctx):
         if is_music_playing(ctx):
-            song_title = misc.italicize(self.last_added['title'])
+            song_title = italicize(self.last_added['title'])
             asyncio.run_coroutine_threadsafe(ctx.send("**Added to playlist: ** \n> " + song_title), self.bot.loop)
         else:
             self.play_music(ctx)
@@ -55,7 +55,7 @@ class Player(commands.Cog):
 
         self.current_song = playlist.pop_left()
         url = self.current_song['source']
-        song_title = misc.italicize(self.current_song['title'])
+        song_title = italicize(self.current_song['title'])
 
         for attempt in range(3):
             try:
