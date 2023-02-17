@@ -1,0 +1,9 @@
+**Commands: **
+[play, p] : arg
+[join, j]
+[quit, leave, q]
+[pause]
+[resume]
+[skip, next, s, n]
+[current, now, c]
+[list, l]

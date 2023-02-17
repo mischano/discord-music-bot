@@ -1,4 +1,5 @@
 import asyncio
+import discord
 from discord.ext import commands
 
 
@@ -22,6 +23,7 @@ class Settings(commands.Cog):
                 if vc.is_playing() and not vc.is_paused():
                     elapsed_time = 0
                 if elapsed_time == self.timeout:
+                    # channel = discord.utils.get(self.client.get_all_channels(), name=after)
                     await vc.disconnect()
                     vc.cleanup()
                 if not vc.is_connected():
@@ -29,17 +31,3 @@ class Settings(commands.Cog):
 
     def set_timeout(self, val):
         self.timeout = val
-
-help_string = "Current list of commands:"
-# help_string = "Current list of commands:\n"
-# "\t-[play, p]\n"
-# "\t-[join, j]\n"
-# "\t-[quit, q]\n"
-# "\t-[pause] \n"
-# "\t-[resume]\n"
-# "\t-[skip, s]\n"
-# "\t-[current, c]\n"
-# "\t-[list, l]\n"
-# "\t-[loop]\n"
-# "The bot is still in development. If you have __bug reports__, "
-# "please contact **sheriff**."   

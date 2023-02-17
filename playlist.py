@@ -21,8 +21,18 @@ def pop_left():
     return queue.popleft()
 
 
+def get_at_index(elem):
+    try:
+        res = queue[elem]
+    except IndexError:
+        return False
+    else:
+        return res
+
+
 def insert(index, elem):
     queue.insert(index, elem)
+
 
 def remove(elem):
     try:
@@ -31,6 +41,7 @@ def remove(elem):
         return False
     else:
         return True
+
 
 def size():
     return len(queue)
@@ -44,8 +55,10 @@ def get_all():
     res = '\n> '.join(f'{idx}. ' + i['title'] for idx, i in enumerate(queue, start=1))
     return res
 
+
 def shuffle_all():
     shuffle(queue)
+
 
 def clear_all():
     queue.clear()

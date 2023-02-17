@@ -15,7 +15,7 @@ if __name__ == '__main__':
     intents.message_content = True
     intents.voice_states = True
 
-    client = commands.Bot(command_prefix='!', intents=intents)
+    client = commands.Bot(command_prefix='$', intents=intents)
 
     @client.event
     async def on_ready():
