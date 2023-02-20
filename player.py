@@ -13,8 +13,26 @@ def is_music_playing(ctx):
         return False
     return caller.is_playing()
 
+
 def is_music_paused(ctx):
     return ctx.voice_client.is_paused()
+
+
+def remove_music(elem):
+    return playlist.remove(elem)
+
+
+def current_music(ctx):
+    if is_music_playing(ctx) is True or is_music_paused(ctx) is True:
+        return True
+    return False
+
+
+def shuffle_music():
+    if playlist.size() <= 0:
+        return False
+    playlist.shuffle_all()
+    return True
 
 
 class Player(commands.Cog):
@@ -51,7 +69,7 @@ class Player(commands.Cog):
 
     def play_music(self, ctx):
         if playlist.size() <= 0 or is_music_playing(ctx) is True:
-            return 
+            return
 
         self.current_song = playlist.pop_left()
         url = self.current_song['source']
@@ -62,7 +80,7 @@ class Player(commands.Cog):
                 ret = discord.FFmpegPCMAudio(url, **self.FFMPEG_OPTIONS)
             except discord.ClientException:
                 asyncio.run_coroutine_threadsafe(
-                        ctx.send("FFmpegPCMAudio has failed. Trying to reconnected...\n"), self.bot.loop
+                    ctx.send("FFmpegPCMAudio has failed. Trying to reconnected...\n"), self.bot.loop
                 )
             else:
                 for i in range(3):
@@ -101,20 +119,6 @@ class Player(commands.Cog):
             self.vc.stop()
             self.play_music(ctx)
             return True
-        
-    def remove_music(self, elem):
-        return playlist.remove(elem)
-
-    def current_music(self, ctx):
-        if is_music_playing(ctx) is True or is_music_paused(ctx) is True:
-            return True
-        return False
-    
-    def shuffle_music(self):
-        if playlist.size() <= 0:
-            return False
-        playlist.shuffle_all()
-        return True
 
     def clear_playlist(self):
         self.vc.stop()

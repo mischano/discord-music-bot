@@ -27,7 +27,6 @@ class Command(commands.Cog):
         self.caller_channel_name = None
         self.caller_channel_id = None
 
-
     @commands.command(aliases=['p'])
     async def play(self, ctx, *args):
         if not await self.join(ctx):
@@ -40,7 +39,6 @@ class Command(commands.Cog):
 
         self.player.player(ctx)
 
-
     @commands.command(aliases=['j'])
     async def join(self, ctx):
         if self.get_caller_channel(ctx) is False:
@@ -50,7 +48,7 @@ class Command(commands.Cog):
         try:
             self.player.vc = await self.caller_channel_name.connect(
                 timeout=.5, reconnect=True, self_mute=False, self_deaf=True
-                )
+            )
         except discord.ClientException:
             if self.get_bot_channel_info(ctx) is False:
                 await ctx.send("Failed in *get_channel_info*. Please report the issue to **sheriff**. Thank you!")
@@ -69,10 +67,9 @@ class Command(commands.Cog):
             await ctx.send("Couldn't connect to the voice channel in time.")
             return False
         else:
-            
+
             await ctx.send(f"{emj_notes} Connected to {self.caller_channel_name} {emj_notes}")
             return True
-
 
     @commands.command(aliases=['q', 'leave'])
     async def quit(self, ctx):
@@ -97,7 +94,6 @@ class Command(commands.Cog):
                 await ctx.send(f"In the voice channel with other user(s) {emj_clown}")
                 return
 
-
     @commands.command(aliases=['s', 'next', 'n'])
     async def skip(self, ctx):
         if self.get_caller_channel(ctx) is False:
@@ -114,12 +110,11 @@ class Command(commands.Cog):
 
         if self.player.skip_music(ctx) is False:
             await ctx.send("Playlist is empty.")
-            return  
+            return
 
         skipped_song = stylizer.italicize(self.player.current_song['title'])
         await ctx.send(f"**Skipped: ** \n> {skipped_song} {emj_ok_hand}")
         return
-
 
     @commands.command()
     async def pause(self, ctx):
@@ -140,7 +135,6 @@ class Command(commands.Cog):
         else:
             await ctx.send(f"Can't pause. Join the voice channel first {emj_clown}")
 
-
     @commands.command()
     async def resume(self, ctx):
         if self.get_caller_channel(ctx) is False:
@@ -159,7 +153,6 @@ class Command(commands.Cog):
         else:
             await ctx.send(f"Can't resume. Join the voice channel first {emj_clown}")
 
-
     @commands.command(aliases=['c'])
     async def current(self, ctx):
         if self.get_bot_channel_info(ctx) is False:
@@ -172,7 +165,6 @@ class Command(commands.Cog):
             await ctx.send(f"**Currently playing: ** \n> {title}")
         return
 
-
     @commands.command(aliases=['l'])
     async def list(self, ctx):
         if self.get_bot_channel_info(ctx) is False:
@@ -181,11 +173,10 @@ class Command(commands.Cog):
         if playlist.is_empty():
             await ctx.send("Playlist is empty.")
             return
-        
+
         queue = playlist.get_all()
         await ctx.send(f"**Playing: ** \n> {self.player.current_song['title']}\n**Playlist: ** \n> {queue}")
         return
-
 
     @commands.command()
     async def remove(self, ctx, *args):
@@ -198,7 +189,7 @@ class Command(commands.Cog):
         if self.caller_channel_name != self.bot_channel_name:
             await ctx.send(f"Can't remove. Join the voice channel first {emj_clown}")
             return
-        
+
         input = "".join(args)
         try:
             elem = int(input)
@@ -212,7 +203,6 @@ class Command(commands.Cog):
         else:
             await ctx.send(f"{italicize(song)} is removed from the playlist {emj_ok_hand}")
         return
-        
 
     @commands.command()
     async def shuffle(self, ctx):
@@ -225,7 +215,7 @@ class Command(commands.Cog):
         if self.caller_channel_name != self.bot_channel_name:
             await ctx.send(f"Can't shuffle. Join the voice channel first {emj_clown}")
             return
-        
+
         if self.player.shuffle_music() is False:
             await ctx.send("Not enough songs in the playlist to shuffle.")
         else:
@@ -233,23 +223,19 @@ class Command(commands.Cog):
 
         return
 
-
     @commands.command()
     async def loop(self, ctx):
         pass
-
 
     @commands.command()
     async def add(self, ctx):
         pass
 
-
     @commands.command()
     async def helpme(self, ctx):
-        with open ("command_list.txt") as f:
+        with open("command_list.txt") as f:
             msg = "\n> $".join([line.rstrip('\n') for line in f])
-        await ctx.send(f"{msg}\n\nIf you encounter bugs, please inform __sheriff__ {emj_sun_shine}")                  
-        
+        await ctx.send(f"{msg}\n\nIf you encounter bugs, please inform __sheriff__ {emj_sun_shine}")
 
     def get_bot_channel_info(self, ctx):
         self.bot = discord.utils.get(ctx.bot.voice_clients, guild=ctx.guild)
@@ -260,7 +246,6 @@ class Command(commands.Cog):
         self.bot_channel_name = self.client.get_channel(self.bot_channel_id)
         self.bot_channel_member_num = len(self.bot_channel_name.members)
         return True
-
 
     def get_caller_channel(self, ctx):
         caller = ctx.author.voice

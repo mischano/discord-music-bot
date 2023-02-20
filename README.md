@@ -1,7 +1,7 @@
 # Discord Music Bot
 ## 🍒 Mr. Cherry 🍒
 
-A custom music bot, an alternative to popular discord music bots that got shut down, streams youtube videos as an audio on demand. 
+A custom music bot, an alternative to popular discord music bots that got shut down, streams YouTube videos as an audio on demand. 
 
 ## Dependencies 
 * Discord.py
