@@ -22,16 +22,6 @@ def remove_music(elem):
     return playlist.remove(elem)
 
 
-
-
-
-def shuffle_music():
-    if playlist.size() <= 0:
-        return False
-    playlist.shuffle_all()
-    return True
-
-
 class Player(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -121,6 +111,12 @@ class Player(commands.Cog):
         if is_music_playing(ctx) is True or is_music_paused(ctx) is True:
             return True
         return False
+
+    def shuffle_music(self):
+        if playlist.size() <= 0:
+            return False
+        playlist.shuffle_all()
+        return True
 
     def clear_playlist(self):
         self.vc.stop()
