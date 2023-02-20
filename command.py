@@ -153,7 +153,7 @@ class Command(commands.Cog):
         else:
             await ctx.send(f"Can't resume. Join the voice channel first {emj_clown}")
 
-    @commands.command(aliases=['c'])
+    @commands.command(aliases=['c', 'now'])
     async def current(self, ctx):
         if self.get_bot_channel_info(ctx) is False:
             await ctx.send("Not connected to a voice channel.")

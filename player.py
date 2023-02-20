@@ -22,10 +22,7 @@ def remove_music(elem):
     return playlist.remove(elem)
 
 
-def current_music(ctx):
-    if is_music_playing(ctx) is True or is_music_paused(ctx) is True:
-        return True
-    return False
+
 
 
 def shuffle_music():
@@ -119,6 +116,11 @@ class Player(commands.Cog):
             self.vc.stop()
             self.play_music(ctx)
             return True
+
+    def current_music(self, ctx):
+        if is_music_playing(ctx) is True or is_music_paused(ctx) is True:
+            return True
+        return False
 
     def clear_playlist(self):
         self.vc.stop()
