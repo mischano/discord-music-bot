@@ -3,7 +3,7 @@
 [join, j]
 [quit, leave, q, le]
 [pause, pa]
-[resume, re]
+[resume, re, res]
 [list, l, li]
 [skip, next, s, n]
 [current, c]
