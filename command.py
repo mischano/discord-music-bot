@@ -108,11 +108,11 @@ class Command(commands.Cog):
             await ctx.send(f"Can't skip. Join the voice channel first {emj_clown}")
             return
 
+        skipped_song = stylizer.italicize(self.player.current_song['title'])
         if self.player.skip_music(ctx) is False:
             await ctx.send("Playlist is empty.")
             return
 
-        skipped_song = stylizer.italicize(self.player.current_song['title'])
         await ctx.send(f"**Skipped: ** \n> {skipped_song} {emj_ok_hand}")
         return
 
