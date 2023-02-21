@@ -114,6 +114,7 @@ class Command(commands.Cog):
             return
 
         await ctx.send(f"**Skipped: ** \n> {skipped_song} {emj_ok_hand}")
+        self.player.play_music(ctx)
         return
 
     @commands.command()
