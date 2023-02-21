@@ -114,7 +114,6 @@ class Command(commands.Cog):
             return
 
         await ctx.send(f"**Skipped: ** \n> {skipped_song} {emj_ok_hand}")
-        self.player.play_music(ctx)
         return
 
     @commands.command()
@@ -202,7 +201,7 @@ class Command(commands.Cog):
         if playlist.remove(elem - 1) is False:
             await ctx.send(f"Number is out of range {emj_skull}")
         else:
-            await ctx.send(f"{italicize(song)} is removed from the playlist {emj_ok_hand}")
+            await ctx.send(f"removed from the playlist:\n> {italicize(song['title'])} {emj_ok_hand}")
         return
 
     @commands.command()

@@ -104,7 +104,7 @@ class Player(commands.Cog):
                 return True
         else:
             self.vc.stop()
-            # self.play_music(ctx)
+            self.play_music(ctx)
             return True
 
     def current_music(self, ctx):
