@@ -60,6 +60,7 @@ class Player(commands.Cog):
 
         self.current_song = playlist.pop_left()
         url = self.current_song['source']
+        print(url)
         song_title = italicize(self.current_song['title'])
 
         for attempt in range(3):
@@ -104,7 +105,7 @@ class Player(commands.Cog):
                 return True
         else:
             self.vc.stop()
-            self.play_music(ctx)
+            # self.play_music(ctx)
             return True
 
     def current_music(self, ctx):

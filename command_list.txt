@@ -1,9 +1,11 @@
 **Commands: **
 [play, p] : arg
 [join, j]
-[quit, leave, q]
-[pause]
-[resume]
+[quit, leave, q, le]
+[pause, pa]
+[resume, re, res]
+[list, l, li]
 [skip, next, s, n]
-[current, now, c]
-[list, l]
+[current, c]
+[remove, r] : elem
+[shuffle, sh]

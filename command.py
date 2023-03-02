@@ -1,8 +1,6 @@
 import discord
 import asyncio
-import stylizer
 import playlist
-# import settings
 from stylizer import *
 from discord.ext import commands
 
@@ -71,7 +69,7 @@ class Command(commands.Cog):
             await ctx.send(f"{emj_notes} Connected to {self.caller_channel_name} {emj_notes}")
             return True
 
-    @commands.command(aliases=['q', 'leave'])
+    @commands.command(aliases=['q', 'leave', 'le'])
     async def quit(self, ctx):
         if self.get_bot_channel_info(ctx) is False:
             await ctx.send("Not connected to a voice channel.")
@@ -108,15 +106,16 @@ class Command(commands.Cog):
             await ctx.send(f"Can't skip. Join the voice channel first {emj_clown}")
             return
 
-        skipped_song = stylizer.italicize(self.player.current_song['title'])
+        skipped_song = italicize(self.player.current_song['title'])
         if self.player.skip_music(ctx) is False:
             await ctx.send("Playlist is empty.")
             return
 
         await ctx.send(f"**Skipped: ** \n> {skipped_song} {emj_ok_hand}")
+        self.player.play_music(ctx)
         return
 
-    @commands.command()
+    @commands.command(aliases=['pa'])
     async def pause(self, ctx):
         if self.get_caller_channel(ctx) is False:
             ctx.send("You are not connected to a voice channel.")
@@ -130,12 +129,12 @@ class Command(commands.Cog):
             if self.player.pause_music(ctx) is False:
                 await ctx.send(f"Can't pause. Nothing is playing.")
             else:
-                title = stylizer.italicize(self.player.current_song['title'])
+                title = italicize(self.player.current_song['title'])
                 await ctx.send(f"{emj_pause} **Paused: ** \n> {title}")
         else:
             await ctx.send(f"Can't pause. Join the voice channel first {emj_clown}")
 
-    @commands.command()
+    @commands.command(aliases=['re', 'res'])
     async def resume(self, ctx):
         if self.get_caller_channel(ctx) is False:
             await ctx.send("You are not connected to a voice channel.")
@@ -148,12 +147,12 @@ class Command(commands.Cog):
             if self.player.resume_music(ctx) is False:
                 await ctx.send("Can't resume. Nothing is paused.")
             else:
-                title = stylizer.italicize(self.player.current_song['title'])
+                title = italicize(self.player.current_song['title'])
                 await ctx.send(f"{emj_resume} **Resumed: ** \n> {title}")
         else:
             await ctx.send(f"Can't resume. Join the voice channel first {emj_clown}")
 
-    @commands.command(aliases=['c', 'now'])
+    @commands.command(aliases=['c'])
     async def current(self, ctx):
         if self.get_bot_channel_info(ctx) is False:
             await ctx.send("Not connected to a voice channel.")
@@ -161,11 +160,11 @@ class Command(commands.Cog):
         if self.player.current_music(ctx) is False:
             await ctx.send("Playlist is empty.")
         else:
-            title = stylizer.italicize(self.player.current_song['title'])
+            title = italicize(self.player.current_song['title'])
             await ctx.send(f"**Currently playing: ** \n> {title}")
         return
 
-    @commands.command(aliases=['l'])
+    @commands.command(aliases=['l', 'li'])
     async def list(self, ctx):
         if self.get_bot_channel_info(ctx) is False:
             await ctx.send("Not connected to a voice channel.")
@@ -178,7 +177,7 @@ class Command(commands.Cog):
         await ctx.send(f"**Playing: ** \n> {self.player.current_song['title']}\n**Playlist: ** \n> {queue}")
         return
 
-    @commands.command()
+    @commands.command(aliases=['r'])
     async def remove(self, ctx, *args):
         if self.get_caller_channel(ctx) is False:
             await ctx.send("You are not connected to a voice channel.")
@@ -204,7 +203,7 @@ class Command(commands.Cog):
             await ctx.send(f"removed from the playlist:\n> {italicize(song['title'])} {emj_ok_hand}")
         return
 
-    @commands.command()
+    @commands.command(aliases=['sh'])
     async def shuffle(self, ctx):
         if self.get_bot_channel_info(ctx) is False:
             await ctx.send("Not connected to a voice channel.")
@@ -229,6 +228,14 @@ class Command(commands.Cog):
 
     @commands.command()
     async def add(self, ctx):
+        pass
+
+    @commands.command()
+    async def insert(self, ctx):
+        pass
+    
+    @commands.command()
+    async def volume(self, ctx):
         pass
 
     @commands.command()
