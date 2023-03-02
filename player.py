@@ -60,6 +60,7 @@ class Player(commands.Cog):
 
         self.current_song = playlist.pop_left()
         url = self.current_song['source']
+        print(url)
         song_title = italicize(self.current_song['title'])
 
         for attempt in range(3):

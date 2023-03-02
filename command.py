@@ -231,6 +231,14 @@ class Command(commands.Cog):
         pass
 
     @commands.command()
+    async def insert(self, ctx):
+        pass
+    
+    @commands.command()
+    async def volume(self, ctx):
+        pass
+
+    @commands.command()
     async def helpme(self, ctx):
         with open("command_list.txt") as f:
             msg = "\n> $".join([line.rstrip('\n') for line in f])
